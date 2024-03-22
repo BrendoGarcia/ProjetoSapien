@@ -36,7 +36,7 @@ public class te {
 	private JPasswordField Camposenha;
 	private Connection connection = null;
 	private static final te banco = null;
-	intermedio intermedioconectionjava = new intermedio();
+	//intermedio intermedioconectionjava = new intermedio();
 	private Statement statement;
 	/**
 	 * Launch the application.
@@ -159,14 +159,25 @@ public void fecharconeccao() throws SQLException {
 		telainicio.add(PainelLoginSistema);
 		PainelLoginSistema.setEnabled(false);
 		PainelLoginSistema.setVisible(false);
+		PainelLoginSistema.setLayout(null);
 		
 		
 		JLabel BemVindo = new JLabel("Bem Vindo");
+		BemVindo.setBounds(366, 5, 162, 42);
 		BemVindo.setHorizontalAlignment(SwingConstants.CENTER);
 		BemVindo.setFont(new Font("Segoe UI Black", Font.PLAIN, 30));
 		PainelLoginSistema.add(BemVindo);
 		BemVindo.setEnabled(false);
 		
+		JLabel nomeusuario = new JLabel("");
+		nomeusuario.setHorizontalAlignment(SwingConstants.CENTER);
+		nomeusuario.setBounds(343, 76, 222, 14);
+		PainelLoginSistema.add(nomeusuario);
+		nomeusuario.setVisible(false);
+		
+		JButton BotaoCadastro = new JButton("CADASTRAR USUARIO");
+		BotaoCadastro.setBounds(363, 263, 176, 23);
+		telainicio.add(BotaoCadastro);
 		//inicio do login
 		JButton BotaoEntrar = new JButton("ENTRAR");
 		BotaoEntrar.addActionListener(new ActionListener() {
@@ -180,7 +191,7 @@ public void fecharconeccao() throws SQLException {
 				      ResultSet r = null;
 				      r = s.executeQuery("Select * from usuarioSapien WHERE CPF = " + CampoCPF.getText() + " and SENHA = " + "'" + Camposenha.getText() +"'" );
 				      
-				
+				      
 				      if (!r.isBeforeFirst() ) {   
 				    	  AVISOS.setEnabled(true);
 				    	  informeLogin.setText("LOGIN INVALIDO!");
@@ -190,17 +201,29 @@ public void fecharconeccao() throws SQLException {
 				    	  //StatusLogin.setForeground(Color.red);;
 				    	  
 				      }
+				      
 				      else {
+				    	  BotaoCadastro.setVisible(false);
 				    	  AVISOS.setEnabled(false);
+				    	  BotaoEntrar.setVisible(false);
 				    	  informeLogin.setText("");
-				    	 // panel.setVisible(false);
 				    	  PainelLoginSistema.setEnabled(true);
 				    	  PainelLoginSistema.setVisible(true);
-				    	  //telainicio.setVisible(false);
 				    	  BemVindo.setEnabled(true);
+				    	  TextoCpf.setVisible(false);
 				    	  BemVindo.setVisible(true);
-				    	  
+				    	  TextoSenha.setVisible(false);
+				    	  lblNewLabel.setVisible(false);
+				    	  TituloSistema.setVisible(false);
+				    	  CampoCPF.setVisible(false);
+				    	  Camposenha.setVisible(false);
+				    	  nomeusuario.setVisible(true);
 				      }
+				      
+				      while (r.next()) {
+				    	  nomeusuario.setText(r.getString("Nome"));
+				        }
+				     
 				      r.close();
 				      //s.close;
 				      fecharconeccao();
@@ -217,9 +240,7 @@ public void fecharconeccao() throws SQLException {
 		BotaoEntrar.setBounds(405, 229, 89, 23);
 		telainicio.add(BotaoEntrar);
 		
-		JButton BotaoCadastro = new JButton("CADASTRAR USUARIO");
-		BotaoCadastro.setBounds(363, 263, 176, 23);
-		telainicio.add(BotaoCadastro);
+
 		
 		
 		
