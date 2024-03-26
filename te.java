@@ -1,7 +1,7 @@
-package tete;
 
 import javax.swing.ImageIcon;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -27,6 +27,8 @@ import java.sql.Statement;
 import java.util.Date;
 import java.util.Scanner;
 import javax.swing.JPanel;
+import javax.swing.JDesktopPane;
+import javax.swing.JScrollBar;
 
 @SuppressWarnings("unused")
 public class te {
@@ -38,6 +40,7 @@ public class te {
 	private static final te banco = null;
 	//intermedio intermedioconectionjava = new intermedio();
 	private Statement statement;
+	private JTextField CampoconsultaCasas;
 	/**
 	 * Launch the application.
 	 */
@@ -93,14 +96,14 @@ public void fecharconeccao() throws SQLException {
 	private void initialize() {
 		frmSistemaSapien = new JFrame();
 		frmSistemaSapien.setTitle("Sistema Sapien");
-		frmSistemaSapien.setBounds(100, 100, 910, 562);
+		frmSistemaSapien.setBounds(100, 100, 910, 872);
 		frmSistemaSapien.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmSistemaSapien.getContentPane().setLayout(null);
 		
 		JPanel telainicio = new JPanel();
 		telainicio.setBorder(UIManager.getBorder("Button.border"));
 		telainicio.setBackground(new Color(255, 255, 255));
-		telainicio.setBounds(0, 0, 904, 523);
+		telainicio.setBounds(0, 0, 894, 840);
 		frmSistemaSapien.getContentPane().add(telainicio);
 		telainicio.setLayout(null);
 		
@@ -135,6 +138,8 @@ public void fecharconeccao() throws SQLException {
 		telainicio.add(TextoSenha);
 		
 		JInternalFrame AVISOS = new JInternalFrame("AVISOS");
+		AVISOS.setBackground(new Color(255, 255, 255));
+		AVISOS.getContentPane().setBackground(new Color(255, 255, 255));
 		AVISOS.setEnabled(false);
 		AVISOS.setClosable(true);
 		AVISOS.setBounds(359, 302, 182, 135);
@@ -142,6 +147,7 @@ public void fecharconeccao() throws SQLException {
 		AVISOS.getContentPane().setLayout(null);
 		
 		JPanel panel = new JPanel();
+		panel.setBackground(new Color(255, 255, 255));
 		panel.setBounds(363, 322, 166, 105);
 		telainicio.add(panel);
 		panel.setLayout(null);
@@ -155,7 +161,7 @@ public void fecharconeccao() throws SQLException {
 		
 		JPanel PainelLoginSistema = new JPanel();
 		PainelLoginSistema.setBackground(new Color(255, 255, 255));
-		PainelLoginSistema.setBounds(0, 0, 894, 523);
+		PainelLoginSistema.setBounds(0, 0, 894, 829);
 		telainicio.add(PainelLoginSistema);
 		PainelLoginSistema.setEnabled(false);
 		PainelLoginSistema.setVisible(false);
@@ -173,7 +179,95 @@ public void fecharconeccao() throws SQLException {
 		nomeusuario.setHorizontalAlignment(SwingConstants.CENTER);
 		nomeusuario.setBounds(343, 76, 222, 14);
 		PainelLoginSistema.add(nomeusuario);
+		
+		CampoconsultaCasas = new JTextField();
+		CampoconsultaCasas.setBounds(24, 100, 215, 20);
+		PainelLoginSistema.add(CampoconsultaCasas);
+		CampoconsultaCasas.setColumns(10);
+		
+		JLabel TextoInfomativoPosLogin = new JLabel("Infome o ID da Casa");
+		TextoInfomativoPosLogin.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		TextoInfomativoPosLogin.setBounds(27, 76, 212, 14);
+		PainelLoginSistema.add(TextoInfomativoPosLogin);
+		
+		JLabel ImgsCasa = new JLabel("IMAGEM AQUI");
+		ImgsCasa.setHorizontalAlignment(SwingConstants.CENTER);
+		ImgsCasa.setBounds(24, 165, 516, 125);
+		PainelLoginSistema.add(ImgsCasa);
+		
+		JLabel recebiValores = new JLabel("VALOR AQUI");
+		recebiValores.setBounds(24, 301, 516, 30);
+		PainelLoginSistema.add(recebiValores);
+		
+		JLabel RecebeEdereco = new JLabel("Endereco");
+		RecebeEdereco.setBounds(24, 342, 516, 23);
+		PainelLoginSistema.add(RecebeEdereco);
+		
+		JLabel RecebiNomeDono = new JLabel("Dono Aqui");
+		RecebiNomeDono.setBounds(24, 376, 516, 20);
+		PainelLoginSistema.add(RecebiNomeDono);
 		nomeusuario.setVisible(false);
+		
+		JButton botaoConsultaCasa = new JButton("Consultar");
+		botaoConsultaCasa.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				conectar();
+				
+				
+				Statement s = null;
+				try {
+					
+					
+					
+					s = (Statement) connection.createStatement();
+				      ResultSet r = null;
+				      r = s.executeQuery("Select * from casas WHERE id_casa = " +CampoconsultaCasas.getText());
+				      
+				      if (!r.isBeforeFirst() ) {   
+				    	  TextoInfomativoPosLogin.setText("Imovem não encontrado");
+				    	  
+				      }
+				      else {
+				    	  TextoInfomativoPosLogin.setText("Infome o ID da Casa");
+				      }
+				      
+				      while (r.next()) {
+				    	  URL urlImg = new URL(r.getString("imgs"));
+				          ImageIcon imgIcon = new ImageIcon(urlImg);
+				          // faz o preload da imagem
+				          while(imgIcon.getImageLoadStatus() == MediaTracker.LOADING); 
+				         
+				          
+				    	  
+				    	  recebiValores.setText("R$: " +r.getString("valor"));
+				    	  RecebeEdereco.setText("Indereço do Imovel :" +r.getString("idereco"));
+				    	  RecebiNomeDono.setText("Responsavel Pelo Imovel :"+r.getString("NomeDono"));
+				    	  ImgsCasa.setIcon(imgIcon);
+				    	  ImgsCasa.setSize(100, 70);
+				    	  
+				        }
+				     
+				      r.close();
+				      //s.close;
+				      fecharconeccao();
+				    } catch (SQLException e1) {
+				      e1.printStackTrace();
+				    } catch (MalformedURLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+			}
+		});
+		botaoConsultaCasa.setBounds(24, 131, 215, 23);
+		PainelLoginSistema.add(botaoConsultaCasa);
+		
+		JScrollBar scrollBar = new JScrollBar();
+		scrollBar.setMinimum(1);
+
+		scrollBar.setBounds(867, 0, 17, 829);
+		scrollBar.setPreferredSize(new Dimension(464, 439));
+		PainelLoginSistema.add(scrollBar);
+	
 		
 		JButton BotaoCadastro = new JButton("CADASTRAR USUARIO");
 		BotaoCadastro.setBounds(363, 263, 176, 23);
@@ -204,6 +298,7 @@ public void fecharconeccao() throws SQLException {
 				      
 				      else {
 				    	  BotaoCadastro.setVisible(false);
+				    	  AVISOS.setVisible(false);
 				    	  AVISOS.setEnabled(false);
 				    	  BotaoEntrar.setVisible(false);
 				    	  informeLogin.setText("");
@@ -221,6 +316,7 @@ public void fecharconeccao() throws SQLException {
 				      }
 				      
 				      while (r.next()) {
+				    	  AVISOS.setVisible(false);
 				    	  nomeusuario.setText(r.getString("Nome"));
 				        }
 				     
