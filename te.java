@@ -20,6 +20,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -39,8 +42,13 @@ public class te {
 	private Connection connection = null;
 	private static final te banco = null;
 	//intermedio intermedioconectionjava = new intermedio();
+	gerandosenhs senhasgerasr = new gerandosenhs();
 	private Statement statement;
 	private JTextField CampoconsultaCasas;
+	private JTextField CampoNomeCadastro;
+	private JTextField CampoCpFCadastro;
+	private JPasswordField CampopassworCadastro;
+	public String calculadohash;
 	/**
 	 * Launch the application.
 	 */
@@ -190,20 +198,20 @@ public void fecharconeccao() throws SQLException {
 		TextoInfomativoPosLogin.setBounds(27, 76, 212, 14);
 		PainelLoginSistema.add(TextoInfomativoPosLogin);
 		
-		JLabel ImgsCasa = new JLabel("IMAGEM AQUI");
+		JLabel ImgsCasa = new JLabel("");
 		ImgsCasa.setHorizontalAlignment(SwingConstants.CENTER);
 		ImgsCasa.setBounds(24, 165, 516, 125);
 		PainelLoginSistema.add(ImgsCasa);
 		
-		JLabel recebiValores = new JLabel("VALOR AQUI");
+		JLabel recebiValores = new JLabel("");
 		recebiValores.setBounds(24, 301, 516, 30);
 		PainelLoginSistema.add(recebiValores);
 		
-		JLabel RecebeEdereco = new JLabel("Endereco");
+		JLabel RecebeEdereco = new JLabel("");
 		RecebeEdereco.setBounds(24, 342, 516, 23);
 		PainelLoginSistema.add(RecebeEdereco);
 		
-		JLabel RecebiNomeDono = new JLabel("Dono Aqui");
+		JLabel RecebiNomeDono = new JLabel("");
 		RecebiNomeDono.setBounds(24, 376, 516, 20);
 		PainelLoginSistema.add(RecebiNomeDono);
 		nomeusuario.setVisible(false);
@@ -267,13 +275,138 @@ public void fecharconeccao() throws SQLException {
 		scrollBar.setBounds(867, 0, 17, 829);
 		scrollBar.setPreferredSize(new Dimension(464, 439));
 		PainelLoginSistema.add(scrollBar);
-	
+		
+		JLabel StatusdacriacaodoUser = new JLabel("");
+		StatusdacriacaodoUser.setHorizontalAlignment(SwingConstants.CENTER);
+		StatusdacriacaodoUser.setBounds(589, 301, 268, 14);
+		telainicio.add(StatusdacriacaodoUser);
+		
+		JLabel TextoCadastroInfo = new JLabel("Nome Completo");
+		TextoCadastroInfo.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		TextoCadastroInfo.setBounds(548, 76, 309, 30);
+		telainicio.add(TextoCadastroInfo);
+		TextoCadastroInfo.setVisible(false);
+		
+		CampoNomeCadastro = new JTextField();
+		CampoNomeCadastro.setBounds(548, 101, 309, 20);
+		telainicio.add(CampoNomeCadastro);
+		CampoNomeCadastro.setColumns(10);
+		CampoNomeCadastro.setVisible(false);
+		
+		JLabel InofomeCPF = new JLabel("CPF Apenas Numero");
+		InofomeCPF.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		InofomeCPF.setBounds(548, 135, 309, 30);
+		telainicio.add(InofomeCPF);
+		InofomeCPF.setVisible(false);
+		
+		CampoCpFCadastro = new JTextField();
+		CampoCpFCadastro.setBounds(550, 165, 307, 20);
+		telainicio.add(CampoCpFCadastro);
+		CampoCpFCadastro.setColumns(10);
+		CampoCpFCadastro.setVisible(false);
+		
+		JLabel inforSenha = new JLabel("Senha");
+		inforSenha.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		inforSenha.setBounds(550, 196, 307, 30);
+		telainicio.add(inforSenha);
+		inforSenha.setVisible(false);
+		
+		CampopassworCadastro = new JPasswordField();
+		CampopassworCadastro.setBounds(550, 224, 307, 20);
+		telainicio.add(CampopassworCadastro);
+		CampopassworCadastro.setVisible(false);
+		
+		JButton BotaoCadastroUser = new JButton("Cadastrar");
+		BotaoCadastroUser.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				conectar();
+				
+				try {
+					calculadohash = senhasgerasr.criptografare(CampopassworCadastro.getText());
+					//System.out.println(calculadohash);
+					
+			String sql = "INSERT INTO usuarioSapien (Nome, CPF, SENHA) VALUES  ("+ "'"+ CampoNomeCadastro.getText() + "'" +"," + CampoCpFCadastro.getText()+"," +"'"+calculadohash+"')";
+			
+			PreparedStatement stmt = connection.prepareStatement(sql);
+			
+			stmt.execute(); //executa comando   
+		      stmt.close();    
+		      fecharconeccao();
+		    } catch (SQLException u) {    
+		      throw new RuntimeException(u);    
+		    }
+				
+				conectar();
+				Statement s = null;
+				try {
+					s = (Statement) connection.createStatement();
+				      ResultSet r = null;
+				      r = s.executeQuery("Select * from usuarioSapien WHERE CPF = " + CampoCpFCadastro.getText());
+				      
+				      
+				      if (!r.isBeforeFirst() ) {   
+				    	  
+				    	  StatusdacriacaodoUser.setText("Usuario não cadastrado");
+				    	  StatusdacriacaodoUser.setForeground(Color.red);
+				      }
+				      
+				      else {
+				    	  StatusdacriacaodoUser.setText("Usuario Cadastrado com sucesso");
+				    	  StatusdacriacaodoUser.setForeground(Color.green);
+				      }
+				     
+				      r.close();
+				      //s.close;
+				      fecharconeccao();
+				    } catch (SQLException e1) {
+				      e1.printStackTrace();
+				    }
+				
+				
+			}
+		});
+		BotaoCadastroUser.setBounds(629, 255, 141, 23);
+		telainicio.add(BotaoCadastroUser);
+		BotaoCadastroUser.setVisible(false);
+		
+		JButton BotaoEntrar = new JButton("ENTRAR");
 		
 		JButton BotaoCadastro = new JButton("CADASTRAR USUARIO");
+		BotaoCadastro.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+	
+					TextoCadastroInfo.setVisible(true);
+					CampoNomeCadastro.setVisible(true);
+					InofomeCPF.setVisible(true);
+					CampoCpFCadastro.setVisible(true);
+					inforSenha.setVisible(true);
+					CampopassworCadastro.setVisible(true);	
+					BotaoCadastroUser.setVisible(true);
+					BotaoCadastro.setVisible(false);
+					AVISOS.setVisible(false);
+			    	  AVISOS.setEnabled(false);
+			    	  BotaoEntrar.setVisible(false);
+			    	  informeLogin.setText("");
+			    	  TextoCpf.setVisible(false);
+			    	  TextoSenha.setVisible(false);
+			    	  lblNewLabel.setVisible(false);
+			    	  TituloSistema.setVisible(false);
+			    	  CampoCPF.setVisible(false);
+			    	  Camposenha.setVisible(false);
+			    	  
+			    	      
+				  }
+				
+				
+			
+		});
 		BotaoCadastro.setBounds(363, 263, 176, 23);
 		telainicio.add(BotaoCadastro);
+		
 		//inicio do login
-		JButton BotaoEntrar = new JButton("ENTRAR");
+		
+		
 		BotaoEntrar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				//estanciando a conecção do banco de dados/
@@ -281,9 +414,11 @@ public void fecharconeccao() throws SQLException {
 				conectar();
 				Statement s = null;
 				try {
+					calculadohash = senhasgerasr.criptografare(Camposenha.getText());
+					//System.out.println(calculadohash);
 					s = (Statement) connection.createStatement();
 				      ResultSet r = null;
-				      r = s.executeQuery("Select * from usuarioSapien WHERE CPF = " + CampoCPF.getText() + " and SENHA = " + "'" + Camposenha.getText() +"'" );
+				      r = s.executeQuery("Select * from usuarioSapien WHERE CPF = " + CampoCPF.getText() + " and SENHA = " + "'" + calculadohash +"'" );
 				      
 				      
 				      if (!r.isBeforeFirst() ) {   
